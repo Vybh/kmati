@@ -34,7 +34,8 @@ if dataset_choice == "Products":
         filtered = filtered[pd.to_numeric(filtered["ratings"], errors='coerce') >= min_rating]
     filtered = filtered[pd.to_numeric(filtered["discount_price"], errors='coerce') <= max_price]
 
-    st.dataframe(filtered)
+    st.write(f"Showing {min(len(filtered), 100)} of {len(filtered)} products")
+    st.dataframe(filtered.head(100))
 
 elif dataset_choice == "Customers":
     st.header("👤 Customers Filter")
@@ -79,3 +80,4 @@ elif dataset_choice == "Sales Items":
         results = sales[sales["product_ids"].str.contains(product_id)]
         st.write(f"Found {len(results)} instances of product ID {product_id} in sales")
         st.dataframe(results)
+
