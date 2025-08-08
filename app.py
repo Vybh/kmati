@@ -8,6 +8,9 @@ sales = pd.read_csv("sales.csv")
 with open("customers.json", "r", encoding="utf-8") as f:
     customers = json.load(f)
 customers_df = pd.DataFrame(customers)
+with open("sales_items.json","r", encoding="utf-8") as k:
+    sales1= json.load(k)
+sales1_df = pd.DataFrame(sales1)
 
 st.title("Amazon Filter System")
 
@@ -73,12 +76,13 @@ elif dataset_choice == "Sales":
     st.dataframe(filtered.head(100))
 
 elif dataset_choice == "Sales Items":
-    st.header("Product Sales Lookup")
+    st.header("Sales Items Filter")
     product_id = st.text_input("Enter Product ID to find all sales")
 
     if product_id:
-        results = sales[sales["product_ids"].str.contains(product_id)]
+        results = sales1_df[sales1_df["product_ids"].str.contains(product_id)]
         st.dataframe(results.head(100))
+
 
 
 
