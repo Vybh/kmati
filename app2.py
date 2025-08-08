@@ -22,5 +22,4 @@ if plot_choice == "BarPlot":
     sales["date"] = pd.to_datetime(sales["date"])
     df_grouped = sales.groupby(pd.Grouper(key="date", freq="M"))["amount"].sum()
 
-    st.bar_chart(df_grouped)
-
+    st.bar_chart(df_grouped, x_label="Month", y_label="Revenue")
