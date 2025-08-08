@@ -17,28 +17,13 @@ dataset_choice = st.sidebar.radio("Choose dataset to explore:", ["Products", "Cu
 if dataset_choice == "Products":
     st.header("Products Filter")
 
-    main_cats = products["main_category"].dropna().unique()
-    sub_cats = products["sub_category"].dropna().unique()
+    m_cat = products["main_category"].dropna().unique()
+    s_cat= products["sub_category"].dropna().unique()
 
-    selected_main = st.multiselect("Main Category", sorted(main_cats))
-    selected_sub = st.multiselect("Sub Category", sorted(sub_cats))
-    min_rating = st.slider("Minimum Rating", 0.0, 5.0, 0.0, step=0.1)
-    max_price = st.number_input("Maximum Discount Price", min_value=0.0, value=10000.0)
-
-    filtered = products.copy()
-    if selected_main:
-        filtered = filtered[filtered["main_category"].isin(selected_main)]
-    if selected_sub:
-        filtered = filtered[filtered["sub_category"].isin(selected_sub)]
-    if min_rating:
-        filtered = filtered[pd.to_numeric(filtered["ratings"], errors='coerce') >= min_rating]
-    filtered = filtered[pd.to_numeric(filtered["discount_price"], errors='coerce') <= max_price]
-
-    st.write(f"Showing {min(len(filtered), 100)} of {len(filtered)} products")
-    st.dataframe(filtered.head(100))
+    
 
 elif dataset_choice == "Customers":
-    st.header("👤 Customers Filter")
+    st.header("Customers Filter")
 
     gender = st.selectbox("Gender", ["All", "Male (0)", "Female (1)"])
     age_range = st.slider("Age Range", 18, 70, (18, 70))
@@ -53,7 +38,7 @@ elif dataset_choice == "Customers":
     st.dataframe(filtered)
 
 elif dataset_choice == "Sales":
-    st.header("📄 Sales Filter")
+    st.header("Sales Filter")
 
     sales["date"] = pd.to_datetime(sales["date"])
     min_date = sales["date"].min()
@@ -73,11 +58,12 @@ elif dataset_choice == "Sales":
     st.dataframe(filtered)
 
 elif dataset_choice == "Sales Items":
-    st.header("📦 Product Sales Lookup")
+    st.header("Product Sales Lookup")
     product_id = st.text_input("Enter Product ID to find all sales")
 
     if product_id:
         results = sales[sales["product_ids"].str.contains(product_id)]
         st.write(f"Found {len(results)} instances of product ID {product_id} in sales")
         st.dataframe(results)
+
 
