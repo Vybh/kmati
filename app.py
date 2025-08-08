@@ -3,7 +3,6 @@ import pandas as pd
 import json
 from datetime import datetime
 
-# Load datasets
 products = pd.read_csv("combined_products_cleaned2.csv")
 sales = pd.read_csv("sales.csv")
 with open("customers.json", "r", encoding="utf-8") as f:
@@ -12,13 +11,29 @@ customers_df = pd.DataFrame(customers)
 
 st.title("Amazon Filter System")
 
-dataset_choice = st.sidebar.radio("Choose dataset to explore:", ["Products", "Customers", "Sales", "Sales Items"])
+dataset_choice = st.sidebar.radio("Dataset:", ["Products", "Customers", "Sales", "Sales Items"])
 
 if dataset_choice == "Products":
     st.header("Products Filter")
 
-    m_cat = products["main_category"].dropna().unique()
-    s_cat= products["sub_category"].dropna().unique()
+    main_cats = products["main_category"].dropna().unique()
+    sub_cats = products["sub_category"].dropna().unique()
+
+    selected_main = st.multiselect("Main Category", main_cats)
+    selected_sub = st.multiselect("Sub Category", sub_cats)    
+    min_rating = st.slider("Minimum Rating", 0.0, 5.0, 0.0, step=0.1)
+    max_price = st.number_input("Maximum Discount Price", min_value=0.0, value=10000.0)
+
+    filtered = products.copy()
+    if selected_main:
+        filtered = filtered[filtered["main_category"].isin(selected_main)]
+    if selected_sub:
+        filtered = filtered[filtered["sub_category"].isin(selected_sub)]
+    if min_rating:
+        filtered = filtered[pd.to_numeric(filtered["ratings"], errors='coerce') >= min_rating]
+    filtered = filtered[pd.to_numeric(filtered["discount_price"], errors='coerce') <= max_price]
+    
+    st.dataframe(filtered.head(100))
 
     
 
@@ -35,7 +50,7 @@ elif dataset_choice == "Customers":
         filtered = filtered[filtered["gender"] == 1]
 
     filtered = filtered[(filtered["age"] >= age_range[0]) & (filtered["age"] <= age_range[1])]
-    st.dataframe(filtered)
+    st.dataframe(filtered.head(100))
 
 elif dataset_choice == "Sales":
     st.header("Sales Filter")
@@ -55,7 +70,7 @@ elif dataset_choice == "Sales":
     if customer_id:
         filtered = filtered[filtered["customer_id"] == int(customer_id)]
 
-    st.dataframe(filtered)
+    st.dataframe(filtered.head(100))
 
 elif dataset_choice == "Sales Items":
     st.header("Product Sales Lookup")
@@ -63,7 +78,7 @@ elif dataset_choice == "Sales Items":
 
     if product_id:
         results = sales[sales["product_ids"].str.contains(product_id)]
-        st.write(f"Found {len(results)} instances of product ID {product_id} in sales")
-        st.dataframe(results)
+        st.dataframe(results.head(100))
+
 
 
