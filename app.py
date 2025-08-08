@@ -79,9 +79,10 @@ elif dataset_choice == "Sales Items":
     st.header("Sales Items Filter")
     product_filter = st.text_input("Enter Product ID to find all sales")
 
-    if product_id:
+    if product_filter:
         results = sales1_df[sales1_df["product_id"].str.contains(product_filter)]
         st.dataframe(results.head(100))
+
 
 
 
