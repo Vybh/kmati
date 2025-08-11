@@ -58,10 +58,15 @@ elif plot_choice == "AreaPlot":
 elif plot_choice == "ScatterPlot":
     st.header("Price vs Rating by Category")
     products_clean = products.dropna(subset=["ratings"])
+    products_clean["rating_bin"] = pd.cut(products_clean["ratings"], bins=10)
+    products_clean = products_clean.groupby(["main_category", "rating_bin"], as_index=False).agg({
+        "discount_price": "mean",
+        "ratings": "mean"
+    })
     chart = alt.Chart(products_clean).mark_circle(size=60, opacity=0.6).encode(
         x="discount_price:Q",
         y="ratings:Q",
-        color="main_category:N",
-        tooltip=["name", "discount_price", "ratings", "main_category"]
+        color="main_category:N"
     ).properties(width=700, height=400)
     st.altair_chart(chart, use_container_width=True)
+
