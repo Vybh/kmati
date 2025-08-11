@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import json
-from datetime import datetime
 import altair as alt
 
 products = pd.read_csv("combined_products_cleaned2.csv")
@@ -9,11 +8,14 @@ sales = pd.read_csv("sales.csv")
 with open("customers.json", "r", encoding="utf-8") as f:
     customers = json.load(f)
 customers_df = pd.DataFrame(customers)
-with open("sales_items.json","r", encoding="utf-8") as k:
+with open("sales_items.json", "r", encoding="utf-8") as k:
     sales1 = json.load(k)
 sales1_df = pd.DataFrame(sales1)
 
 sales["date"] = pd.to_datetime(sales["date"])
+sales1_df["date"] = pd.to_datetime(sales1_df["date"])
+
+customers_df["gender"] = customers_df["gender"].map({0: "Male", 1: "Female"})
 
 st.title("Dashboard System")
 
@@ -27,7 +29,7 @@ if plot_choice == "BarPlot":
 
 elif plot_choice == "LinePlot":
     st.header("Quarterly Sales Trends for Top 5 Categories")
-    merged = sales1_df.merge(sales, on="sale_id").merge(products, on="product_id")
+    merged = sales1_df.merge(sales, on=["invoice_no", "customer_id", "date"]).merge(products, on="product_id")
     top_categories = merged.groupby("main_category")["amount"].sum().nlargest(5).index
     filtered = merged[merged["main_category"].isin(top_categories)]
     filtered["Quarter"] = filtered["date"].dt.to_period("Q").dt.to_timestamp()
@@ -55,11 +57,11 @@ elif plot_choice == "AreaPlot":
 
 elif plot_choice == "ScatterPlot":
     st.header("Price vs Rating by Category")
-    products_clean = products.dropna(subset=["rating"])
+    products_clean = products.dropna(subset=["ratings"])
     chart = alt.Chart(products_clean).mark_circle(size=60, opacity=0.6).encode(
-        x="price:Q",
-        y="rating:Q",
+        x="discount_price:Q",
+        y="ratings:Q",
         color="main_category:N",
-        tooltip=["product_name", "price", "rating", "main_category"]
+        tooltip=["name", "discount_price", "ratings", "main_category"]
     ).properties(width=700, height=400)
     st.altair_chart(chart, use_container_width=True)
