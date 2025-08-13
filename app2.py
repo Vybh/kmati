@@ -47,12 +47,14 @@ elif plot_choice == "AreaPlot":
     merged_gender = sales.merge(customers_df, on="customer_id")
     merged_gender["Quarter"] = merged_gender["date"].dt.to_period("Q").dt.to_timestamp()
     quarterly_gender = merged_gender.groupby(["Quarter", "gender"])["amount"].sum().reset_index()
+
     chart = alt.Chart(quarterly_gender).mark_area(opacity=0.6).encode(
         x="Quarter:T",
-        y="amount:Q",
+        y=alt.Y("amount:Q", stack=None),  # disable stacking
         color="gender:N",
         tooltip=["Quarter", "gender", "amount"]
     ).properties(width=700, height=400)
+
     st.altair_chart(chart, use_container_width=True)
 
 elif plot_choice == "ScatterPlot":
